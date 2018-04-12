@@ -3,6 +3,20 @@
 - Renommer les accesseurs en fonction
 
 2
+- Ajouter un menu "Statistiques" avec :
+    - total de population
+    - moyenne par ville
+
+3
 - Ajouter un champs "region"
 - Valeur par défaut : "(inconnue)"
 - L'afficher en 3e colonne dans le listing
+
+4
+- Augmenter le menu statistiques :
+    - total de régions
+    - moyenne de population par région
+
+5
+- Ajout d'un service de région
+- Refacto des services pour la partie chargement de données
