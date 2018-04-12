@@ -1,4 +1,8 @@
 1
+- Renommer le champs de City "name" en "nom"
+- Renommer les accesseurs en fonction
+
+2
 - Ajouter un champs "region"
 - Valeur par défaut : "(inconnue)"
 - L'afficher en 3e colonne dans le listing
