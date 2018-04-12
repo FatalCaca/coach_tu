@@ -1,0 +1,4 @@
+1
+- Ajouter un champs "region"
+- Valeur par défaut : "(inconnue)"
+- L'afficher en 3e colonne dans le listing
