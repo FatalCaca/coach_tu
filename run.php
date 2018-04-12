@@ -4,29 +4,30 @@ require_once('autoload.php');
 
 use Model\User;
 use Service\Container;
+use Utils\Console;
+use Controller\LobbyController;
 
 $authenticationService = Container::get('AuthenticationService');
 $user = null;
 
-print("Tapez q pour quitter\n");
+Console::writeLine("Tapez q pour quitter");
 
 while (!$user) {
-    $username = readline('Username : ');
+    $username = Console::read('Username : ');
 
     if ($username === 'q') {
         return;
     }
 
-    $password = readline('Password : ');
+    $password = Console::read('Password : ');
     $user = $authenticationService->logIn($username, $password);
 
     if (!$user) {
-        print('Login échoué');
-        print("\n\n");
+        Console::writeLine('Login échoué');
     }
 }
 
-
-var_dump($user); die();
+$lobbyController = new LobbyController();
+$lobbyController->mainMenu();
 
 ?>
