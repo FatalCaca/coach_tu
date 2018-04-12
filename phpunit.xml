@@ -1,4 +1,5 @@
 <phpunit
+    bootstrap="autoload.php"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.3/phpunit.xsd"
     backupGlobals="true"
@@ -23,7 +24,7 @@
     >
     <testsuites>
         <testsuite name="All">
-            <directory>/tests/*Test.php files</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>
