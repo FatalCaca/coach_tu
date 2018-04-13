@@ -4,18 +4,18 @@ namespace Model;
 class City
 {
     protected $id;
-    protected $name;
+    protected $nom;
     protected $population;
 
-    public function __construct($name = "noname", $population = 0)
+    public function __construct($nom = "noname", $population = 0)
     {
-        $this->name = $name;
+        $this->nom = $nom;
         $this->population = $population;
     }
 
     public function __toString()
     {
-        return sprintf("%s (%s)", $this->name, $this->id);
+        return sprintf("%s (%s)", $this->nom, $this->id);
     }
 
     public function getId()
@@ -30,14 +30,14 @@ class City
         return $this;
     }
 
-    public function getName()
+    public function getNom()
     {
-        return $this->name;
+        return $this->nom;
     }
 
-    public function setName($name)
+    public function setNom($nom)
     {
-        $this->name = $name;
+        $this->nom = $nom;
 
         return $this;
     }
