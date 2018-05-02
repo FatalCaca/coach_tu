@@ -205,7 +205,7 @@ Une fois tout terminé, il nous affiche le rapport. Ce qui nous intéresse dans 
 Il y a trois choses de base qui doivent être détaillées à propos des tests dans phpUnit (et qu'on retrouve partout)
 
 Le premier c'est le test en lui-même. C'est une méthode. La classe qui les contient les tests est appellée "test case" (cas de test). On les préfixe (ou suffixe) très souvent avec "test". D'ailleur les conditions de sélection des suites de test ignorent généralement les méthodes qui n'ont pas "test" dans leur nom.
-Notre classe de test (cas de test - test case) héritera systématiquement de la classe de test de base fournie par phpUnit (`BaseTestCase`). C'est ce qui nous permettra d'accéder à une grande partie de l'API de phpUnit.
+Notre classe de test (cas de test - test case) héritera systématiquement de la classe de test de base fournie par phpUnit (`PHPUnit\Framework\TestCase`). C'est ce qui nous permettra d'accéder à une grande partie de l'API de phpUnit.
 
 L'exécution du test, ça n'est rien d'autre que l'éxécution de la méthode. On peut en principe faire tout ce qu'on pourrait faire dans un programme normal.
 **Normalement**, un test ne doit tester qu'une petite partie du code. Un test ne devrait controller qu'une seule méthode, un test case ne devrait controller qu'une seule classe. Dans les faits il est souvent utile de déroger à cette règle. C'est parfois très pratique d'avoir un test qui manipule plusieurs classes et qui est donc ainsi très sensible à l'erreur : si un seul des maillons de la chaine des événement déconne, le test échoue. C'est un peu plus long de trouver la source du problème mais le test est relativement rapide à écrire et il couvre une grande partie du code.
@@ -213,11 +213,29 @@ Dans tous les cas, le but d'un test est de faire des **assertions**
 
 Une assertion c'est une affirmation. Ce sont des choses que l'on va affirmer dans le test, et que phpUnit va vérifier. Par exemple `assertEquals($a, $b)` revient à affirmer que `$a` est égal à `$b`.
 Si une assertion se révèle fausse (`$a` est différent de `$b`), alors phpUnit considère que le test a échoué. L'assertion doit représenter le comportement attendu du programme. Si elle se tromppe, c'est que le programme est erroné.
-Toutes les méthodes d'assertions se trouve dans la classe dont vont hériter tous nos tests (`BaseTestCase`), on peut donc faire nos assertion avec `$this->assert...()`.
+Toutes les méthodes d'assertions se trouve dans la classe dont vont hériter tous nos tests (`PHPUnit\Framework\TestCase`), on fait donc nos assertions avec `$this->assert...()`.
+
+Il nous reste 2 méthodes à aborder à propos des bases de phpUnit : `setUp()` (initialiser) et `tearDown()` (détruire)
+Pour un cas de test donné, il y a souvent des ressources dont on a besoin dans plusieurs (voir tous) les tests du cas de test. L'idéal est de factoriser l'initialisation/récupération de ces ressources et de les mettre dans le scope de l'objet pour les avoir à disposition dans tous les tests. Cependant, pas besoin de le faire manuellement : phpUnit propose déjà une solution à ce problème récurrent. La méthode `setUp()`, si elle est implémentée, sera appellée avant chaque lancement de test. La méthode `tearDown()`, quand à elle, le sera à chaque fin de test.
+Dans `setUp()` on mettra tout ce qui nécessite d'être instancié/récupéré. Dans `tearDown()` tout ce qui prend des resources ou qui nécessite une remise à zéro pour chaque test.
 
 Un petit exemple commenté pour y voir plus clair :
 ```php
-//TODO: faire l'exemple
+// Toujours dans un namespace à part du code de production
+namespace Tests;
+
+// On peut importer ce qu'on veut de l'application prod
+use AppBundle\Entity\User;
+
+// La classe de base qui contient toutes les méthodes phpUnit utiles
+use PHPUnit\Framework\TestCase;
+
+// Notre cas de test
+// Note : On peut la garnir avec des annotations qui indiquent diverses configurations
+class UserTest extends TestCase
+{
+
+}
 ```
 
 TODO : exemple avec les TU qui servent à check l'exécution d'une feature
