@@ -59,7 +59,7 @@ class LobbyController
             printf(
                 $mask,
                 $city->getId(),
-                $city->getName(),
+                $city->getNom(),
                 $city->getPopulation()
             );
         }
@@ -101,7 +101,7 @@ class LobbyController
 
         $newName = Console::read(sprintf(
             "Nouveau nom ? (%s) : ",
-            $city->getName()
+            $city->getNom()
         ));
 
         $newPopulation = Console::read(sprintf(
