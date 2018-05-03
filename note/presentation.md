@@ -2,6 +2,7 @@
 un tu n'est jamais rien d'autre qu'un programme qui teste un bout d'un autre programme
 souvent, après un ticket, on pète des trucs
 il faut faire en sorte de ne pas push des trucs pété : ça représente une perte de temps (et d'énergie) pour le client/po et le dev (retours qui reviennent après; etc.)
+
 on peut tester tout, manuellement, avant de push
 mais c'est pénible
 
@@ -29,6 +30,21 @@ On peut différencier trois types de test :
 
 La question "pourquoi tester" n'est en réalité pas très utile. C'est évident qu'il faut tester, qu'il faut que le code livré fonctionne.
 Une question plus intéressante c'est "pourquoi est-ce qu'on ne teste pas ?". Parce que c'est chiant et que ça prend du temps. Pourquoi ? Quoi faire pour que ça le soit moins ?
+
+On peut voir le test suivant deux perspective :
+- la perspective chef de projet/assurance qualité : ce qui permet de livrer un truc qui marche
+- la perspective du dev : un outil de plus pour dev mieux
+
+La première perspective ne nous intéresse pas ici. Les articles qui font l'éloge des tests logiciel sont légion sur internet. Enscencer les avantages qualité des tests ne donnera pas (directement) de raison au dev de tester.
+Ce qui nous intéresse c'est le deuxième point. Comment est-ce qu'on peut se servir du test pour dev mieux ? Pas mieux au sens de "moins de bug". Indirectement oui, évidement. La disparition progressive des bugs sera une conséquence heureuse de la multiplication des tests. Mais ça ne doit pas être notre argument principal. Le dev doit s'approprier le test comme un outil qui lui permet d'être efficace, pas comme une corvée à faire avant de livrer.
+Un dev sera jugé sur sa capacité à livrer. Passer une heure après un ticket à écrire des tests unitaires ne le fera pas livrer plus.
+
+> Certe mais il livrera de la qualité !
+C'est tout à fait discutable. Peut-être qu'il livrera mieux mais son code **ne sera pas** exempt de bug. Il y aura des retours. Il y aura *forcément* des retours. Sans la possibilité de voir que *ça aurait été pire sans test*, le PO/CDP/Chef-des-tickets ne verra qu'un ticket qui a prit une heure de plus sans qualité supplémentaire en échange.
+En plus de ça, on peut douter de la pertinence d'un jeu de test écrit comme une dernière corvée avant livraison.
+
+Il est absolument essentiel de s'approprier l'outil de test pour écrire naturellement des tests pertinents.
+Le but de cette formation est d'étudier les raison de tester (automatiquement) *pour le dev*. De voir comment on peut faire rentrer les tests unitaires dans son workflow, petit à petit, et *sans que ça soit une corvée*.
 
 ---
 # Tester manuellement des bouts de code :
@@ -204,7 +220,7 @@ Une fois tout terminé, il nous affiche le rapport. Ce qui nous intéresse dans 
 
 Il y a trois choses de base qui doivent être détaillées à propos des tests dans phpUnit (et qu'on retrouve partout)
 
-Le premier c'est le test en lui-même. C'est une méthode. La classe qui les contient les tests est appellée "test case" (cas de test). On les préfixe (ou suffixe) très souvent avec "test". D'ailleur les conditions de sélection des suites de test ignorent généralement les méthodes qui n'ont pas "test" dans leur nom.
+Le premier c'est le test en lui-même. C'est une **méthode**. La classe qui les contient les tests est appellée **"test case"** (cas de test). On les préfixe (ou suffixe) très souvent avec "test". D'ailleur les conditions de sélection des suites de test ignorent généralement les méthodes qui n'ont pas "test" dans leur nom.
 Notre classe de test (cas de test - test case) héritera systématiquement de la classe de test de base fournie par phpUnit (`PHPUnit\Framework\TestCase`). C'est ce qui nous permettra d'accéder à une grande partie de l'API de phpUnit.
 
 L'exécution du test, ça n'est rien d'autre que l'éxécution de la méthode. On peut en principe faire tout ce qu'on pourrait faire dans un programme normal.
@@ -221,22 +237,135 @@ Dans `setUp()` on mettra tout ce qui nécessite d'être instancié/récupéré. 
 
 Un petit exemple commenté pour y voir plus clair :
 ```php
+// Tests/Entity/UserTest.php
+
 // Toujours dans un namespace à part du code de production
-namespace Tests;
+namespace Tests\Entity;
 
 // On peut importer ce qu'on veut de l'application prod
+use AppBundle\Entity\Contract;
 use AppBundle\Entity\User;
+use AppBundle\Service\ContractService;
+use AppBundle\Exception\Contract\ContractAssignementException;
 
 // La classe de base qui contient toutes les méthodes phpUnit utiles
 use PHPUnit\Framework\TestCase;
 
 // Notre cas de test
-// Note : On peut la garnir avec des annotations qui indiquent diverses configurations
-class UserTest extends TestCase
+// On peut la garnir avec des annotations qui indiquent diverses configurations
+class ContractServiceTest extends TestCase
 {
+    // L'objet qui sera testé
+    // C'est lui qui sera créé/détruit dans setUp() et tearDown()
+    private $contractService;
 
+    // La fonction qui sera appellée avant chaque test
+    private function setUp()
+    {
+        // Initialisation du service qui servira dans tous les tests
+        // Suivant sa nature et sa complexité on peut soit :
+        // - l'instancier nous même
+        // - instancier un mock (un faux)
+        // - faire appel à une factory
+        // - faire appel à une factory de mock
+        $this->contractService = ...
+
+        // Il peut très bien y avoir d'autres objets nécessaires pour plusieurs tests
+    }
+
+    // La fonction qui sera appellée après chaque test
+    private function tearDown()
+    {
+        // On détruit tout ce qui va reservir : on veut être sûr qu'il n'y a pas
+        //  d'interférence entre les tests
+        $this->contractService = null;
+
+        // Il peut très bien y avoir d'autres objets a détruire/libérer
+    }
+
+    // Un premier test
+    // Il vérifie qu'un User à qui on assigne un Contract est n'est ensuite plus disponible
+    private function testAssignContractNoMoreAvailable()
+    {
+        $user = new User();
+
+        // Un nouvel User doit être disponible
+        $this->assertTrue($user->isAvailable());
+
+        // On assigne le Contract à l'User
+        $contract = new Contract();
+        $contract->activate();
+        $this->contractService->assignContractToUser($contract, $user);
+
+        // L'User ne devrait plus être disponible
+        $this->assertFalse($user->isAvailable());
+
+        // L'User devrait avoir 1 Contract assigné
+        $this->assertEquals(
+            1,
+            count($user->getAssignedContracts())
+        );
+    }
+
+    // Un second test
+    // Il vérifie qu'une tentative d'assignation d'un contrat non-actif
+    //  déclenche bien une exception
+    private function testAssigneInactiveContract()
+    {
+        $user = new User();
+        $contract = new Contract();
+
+        // On prévient phpUnit qu'on s'attend à se prendre une exception
+        $this->expectException(ContractAssignementException);
+
+        $this->contractService->assigneContractToUser($contract, $user);
+
+        // Si on arrive jusqu'ici c'est qu'il n'y a pas eu d'exception de levée
+        // Le test a donc échoué
+        // phpUnit le détectera et marquera le test comme échoué
+    }
+
+    // D'autres tests ...
+}
+```
+> Est-ce qu'on est obligé d'utiliser `setUp()` et `tearDown()`
+Absolument pas. Ce sont des facilités offerte par le framework. Une solution efficace à un problème récurrent. C'est tout à fait possible de tomber sur des cas où `setUp()` et `tearDown()` sont superflus. Il est inutile de les écrire systématiquement, il faut juste savoir qu'ils sont là si jamais on a besoin d'un ou plusieurs objets similaires pour plusieurs tests.
+
+> On aurait pu mettre $user et $contract dans le `setUp()`
+C'est très juste. Si des parties de codes de test sont refactorisable, il faut les refactoriser. Il ne faut pas hésiter quand cela permet d'amériorer la lisibilité du code, que ce soit du code de production ou de test.
+
+> Mes entités sont un peu plus compliquées à instancier qu'avec un simple new ...
+C'est souvent le cas ! Dans un vrai projet, les entités ont souvent des relations entre-elles, des dépendances. Si les relations ont elles-mêmes des d'autres dépendances, ça peut vite être très compliqué d'avoir ne serait-ce qu'un objet à tester. Une solution pour ça : utiliser des **mocks**. Pour rendre l'utilisation de mocks aisée, il faut faire en sorte de **découpler ses classes*.
+Le sujet des mocks et du découplage de classe mériteraient un livre entier à lui tout seul. Pour l'instant on va mettre de coté ce problème tout en gardant en tête que le problème des dépendance a une (bonne) solution.
+En attendant, on se fixera pour objectif de tester au maximum ce qui est directement testable.
+
+
+
+
+TODO : faire une intro aux mocks
+Un mock est un "faux" objet. Si j'ai besoin de tester Contract et que cet objet a besoin d'une Company pour fonctionner, eh bien je vais créer une fausse Company : une classe MockCompany, qui aura la même interface d'une vraie Company, mais qui en réalité se comportera comme je veux.
+
+Un exemple pour y voir plus clair :
+``` php
+// Je voudrais tester ma classe Contract ... plus précisément la méthode calculateCost
+class Contract
+{
+    protected $company;
+
+    // ...
+
+    public function calculateCost()
+    {
+        // ...
+        $employeesCount = $this->company->getEmployeesCount();
+        // ...
+    }
+
+    // ...
 }
 ```
 
+
 TODO : exemple avec les TU qui servent à check l'exécution d'une feature
 TODO : exemple de TU pour factorielle
+TODO : "c'est chiant, il faut changer les tests quand on change les specs"
