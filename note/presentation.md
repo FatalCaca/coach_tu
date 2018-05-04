@@ -40,6 +40,7 @@ Ce qui nous intéresse c'est le deuxième point. Comment est-ce qu'on peut se se
 Un dev sera jugé sur sa capacité à livrer. Passer une heure après un ticket à écrire des tests unitaires ne le fera pas livrer plus.
 
 > Certe mais il livrera de la qualité !
+
 C'est tout à fait discutable. Peut-être qu'il livrera mieux mais son code **ne sera pas** exempt de bug. Il y aura des retours. Il y aura *forcément* des retours. Sans la possibilité de voir que *ça aurait été pire sans test*, le PO/CDP/Chef-des-tickets ne verra qu'un ticket qui a prit une heure de plus sans qualité supplémentaire en échange.
 En plus de ça, on peut douter de la pertinence d'un jeu de test écrit comme une dernière corvée avant livraison.
 
@@ -336,8 +337,8 @@ C'est très juste. Si des parties de codes de test sont refactorisable, il faut 
 
 > Mes entités sont un peu plus compliquées à instancier qu'avec un simple new ...
 C'est souvent le cas ! Dans un vrai projet, les entités ont souvent des relations entre-elles, des dépendances. Si les relations ont elles-mêmes des d'autres dépendances, ça peut vite être très compliqué d'avoir ne serait-ce qu'un objet à tester. Une solution pour ça : utiliser des **mocks**. Pour rendre l'utilisation de mocks aisée, il faut faire en sorte de **découpler ses classes*.
-Le sujet des mocks et du découplage de classe mériteraient un livre entier à lui tout seul. Pour l'instant on va mettre de coté ce problème tout en gardant en tête que le problème des dépendance a une (bonne) solution.
-En attendant, on se fixera pour objectif de tester au maximum ce qui est directement testable.
+Le sujet des mocks et du découplage de classe mériteraient un livre entier à lui tout seul. Pour l'instant on va mettre de coté ce problème tout en gardant en tête qu'il a une (bonne) solution.
+En attendant, on se fixera pour objectif de tester au maximum ce qui est *directement* testable.
 
 
 
@@ -366,6 +367,7 @@ class Contract
 ```
 
 
+TODO : expliquer la distinction entre "unit" classique et "unit of work
 TODO : exemple avec les TU qui servent à check l'exécution d'une feature
 TODO : exemple de TU pour factorielle
 TODO : "c'est chiant, il faut changer les tests quand on change les specs"
